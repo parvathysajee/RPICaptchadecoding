@@ -48,27 +48,27 @@ def main():
     print("Classifying captchas with symbol set {" + captcha_symbols + "}")
 
     #with tf.device('/cpu:0'):
-     with open(args.output, 'w',newline='\n') as output_file:
-         json_file = open(args.model_name+'.json', 'r')
-         loaded_model_json = json_file.read()
-         json_file.close()
-         model = tflite.Model.GetRootAsModel(loaded_model_json)
-         model.load_weights(args.model_name+'.h5')
-         model.compile(loss='categorical_crossentropy',
+    with open(args.output, 'w',newline='\n') as output_file:
+        json_file = open(args.model_name+'.json', 'r')
+        loaded_model_json = json_file.read()
+        json_file.close()
+        model = tflite.Model.GetRootAsModel(loaded_model_json)
+        model.load_weights(args.model_name+'.h5')
+        model.compile(loss='categorical_crossentropy',
                        optimizer=keras.optimizers.Adam(1e-3, amsgrad=True),
                        metrics=['accuracy'])
 
-         for x in os.listdir(args.captcha_dir):
+        for x in os.listdir(args.captcha_dir):
              # load image and preprocess it
-             raw_data = cv2.imread(os.path.join(args.captcha_dir, x))
-             rgb_data = cv2.cvtColor(raw_data, cv2.COLOR_BGR2RGB)
-             image = numpy.array(rgb_data) / 255.0
-             (c, h, w) = image.shape
-             image = image.reshape([-1, c, h, w])
-             prediction = model.predict(image)
-             output_file.write(x + "," + decode(captcha_symbols, prediction) + "\n")
+            raw_data = cv2.imread(os.path.join(args.captcha_dir, x))
+            rgb_data = cv2.cvtColor(raw_data, cv2.COLOR_BGR2RGB)
+            image = numpy.array(rgb_data) / 255.0
+            (c, h, w) = image.shape
+            image = image.reshape([-1, c, h, w])
+            prediction = model.predict(image)
+            output_file.write(x + "," + decode(captcha_symbols, prediction) + "\n")
 
-             print('Classified ' + x)
+            print('Classified ' + x)
 
 if __name__ == '__main__':
     main()
