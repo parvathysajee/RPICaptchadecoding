@@ -7,6 +7,8 @@ import string
 import cv2
 import argparse
 import captcha.image
+import re
+import codecs
 
 def main():
     parser = argparse.ArgumentParser()
@@ -56,12 +58,13 @@ def main():
 
     for i in range(args.count):
         random_str = ''.join([random.choice(captcha_symbols) for j in range(args.length)])
-        image_path = os.path.join(args.output_dir, random_str+'.png')
+        file_name = codecs.encode(random_str.encode(), "hex")
+        image_path = os.path.join(args.output_dir, file_name.decode("ASCII")  +'.png')
         if os.path.exists(image_path):
             version = 1
-            while os.path.exists(os.path.join(args.output_dir, random_str + '_' + str(version) + '.png')):
+            while os.path.exists(os.path.join(args.output_dir, file_name.decode("ASCII") + '_' + str(version) + '.png')):
                 version += 1
-            image_path = os.path.join(args.output_dir, random_str + '_' + str(version) + '.png')
+            image_path = os.path.join(args.output_dir, file_name.decode("ASCII") + '_' + str(version) + '.png')
 
         image = numpy.array(captcha_generator.generate_image(random_str))
         cv2.imwrite(image_path, image)

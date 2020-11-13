@@ -11,6 +11,7 @@ import random
 import argparse
 import tensorflow as tf
 import tensorflow.keras as keras
+import codecs 
 
 # Build a Keras model given some parameters
 def create_model(captcha_length, captcha_num_symbols, input_shape, model_depth=5, module_size=2):
@@ -72,10 +73,14 @@ class ImageSequence(keras.utils.Sequence):
                 # So the real label should have the "_num" stripped out.
 
                 random_image_label = random_image_label.split('_')[0]
-
-                 
+                bytes_object = bytes.fromhex(random_image_label) 
+                random_image_label = bytes_object.decode("ASCII")
+                #print("enumerate(random_image_label) "+str(enumerate(random_image_label)))
                 for j, ch in enumerate(random_image_label):
-                    y[j][i,:] = 0
+                    #print("j is "+str(j))
+                    #print("i is "+str(i))
+                    #print(str(y[j][i, :]))
+                    y[j][i, :] = 0
                     y[j][i, self.captcha_symbols.find(ch)] = 1
 
         return X, y
@@ -139,6 +144,8 @@ def main():
     # tf.config.experimental.set_memory_growth(physical_devices[0], True)
 
     # with tf.device('/device:GPU:0'):
+    devices = tf.config.experimental.list_physical_devices('GPU')
+    tf.config.experimental.set_memory_growth(devices[0], True)
     with tf.device('/device:GPU:0'):
     # with tf.device('/device:XLA_CPU:0'):
         model = create_model(args.length, len(captcha_symbols), (args.height, args.width, 3))
