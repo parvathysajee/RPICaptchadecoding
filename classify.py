@@ -10,7 +10,8 @@ import numpy
 import string
 import random
 import argparse
-import tflite_runtime.interpreter as tflite
+import tensorflow as tf
+import tensorflow.keras as keras
 from collections import OrderedDict 
 
 class my_dictionary(dict): 
@@ -24,7 +25,7 @@ class my_dictionary(dict):
         self[key] = value 
 
 def decode(characters, y):
-    y = numpy.argmax(numpy.array(y), axis=1)
+    y = numpy.argmax(numpy.array(y), axis=2)[:,0]
     return ''.join([characters[x] for x in y])
 
 def main():
@@ -58,40 +59,28 @@ def main():
     print("Classifying captchas with symbol set {" + captcha_symbols + "}")
     dict_obj = my_dictionary()
 
+    with tf.device('/gpu:0'):
+        with open(args.output, 'w',newline='\n') as output_file:
+            json_file = open(args.model_name+'.json', 'r')
+            loaded_model_json = json_file.read()
+            json_file.close()
+            model = keras.models.model_from_json(loaded_model_json)
+            model.load_weights(args.model_name+'.h5')
+            model.compile(loss='categorical_crossentropy',
+                          optimizer=keras.optimizers.Adam(1e-3, amsgrad=True),
+                          metrics=['accuracy'])
 
-    with open(args.output, 'w',newline='\n') as output_file:
-        json_file = open(args.model_name+'.json', 'r')
-        loaded_model_json = json_file.read()
-        json_file.close()
+            for x in os.listdir(args.captcha_dir):
+             # load image and preprocess it
+                raw_data = cv2.imread(os.path.join(args.captcha_dir, x))
+                rgb_data = cv2.cvtColor(raw_data, cv2.COLOR_BGR2RGB)
+                image = numpy.array(rgb_data) / 255.0
+                (c, h, w) = image.shape
+                image = image.reshape([-1, c, h, w])
+                prediction = model.predict(image)
+                output_file.write(x + "," + decode(captcha_symbols, prediction) + "\n")
 
-        tf_interpreter = tflite.Interpreter(args.model_name+".tflite")
-        tf_interpreter.allocate_tensors()
-
-        input_tf = tf_interpreter.get_input_details()
-        output_tf = tf_interpreter.get_output_details()
-        
-        # model = keras.models.model_from_json(loaded_model_json)
-        # model.load_weights(args.model_name+'.h5')
-        # model.compile(loss='categorical_crossentropy',
-        #                 optimizer=keras.optimizers.Adam(1e-3, amsgrad=True),
-        #                 metrics=['accuracy'])
-
-        for x in os.listdir(args.captcha_dir):
-            # load image and preprocess it
-            raw_data = cv2.imread(os.path.join(args.captcha_dir, x))
-            rgb_data = cv2.cvtColor(raw_data, cv2.COLOR_BGR2RGB)
-            image = numpy.array(rgb_data, dtype=numpy.float32) / 255.0
-            (c, h, w) = image.shape
-            image = image.reshape([-1, c, h, w])
-            tf_interpreter.set_tensor(input_tf[0]['index'],image)
-            tf_interpreter.invoke()
-            prediction = []
-            for output_node in output_tf:
-                prediction.append(tf_interpreter.get_tensor(output_node['index']))
-            prediction = numpy.reshape(prediction,(len(output_tf),-1))
-            output_file.write(x + "," + decode(captcha_symbols, prediction) + "\n")
-
-            print('Classified ' + x)
+                print('Classified ' + x)
 
 if __name__ == '__main__':
     main()

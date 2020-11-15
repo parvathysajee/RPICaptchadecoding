@@ -30,6 +30,16 @@ def create_model(captcha_length, captcha_num_symbols, input_shape, model_depth=5
 
   return model
 
+class ConvertToTfLite(keras.callbacks.Callback):
+    def __init__(self, model_name):
+        self.model_name = model_name
+
+    def on_epoch_end(self, batch, logs={}):
+        tf_converter = tf.lite.TFLiteConverter.from_keras_model(self.model)
+        tflite_model = tf_converter.convert()
+        open(self.model_name +".tflite", "wb").write(tflite_model)
+
+
 # A Sequence represents a dataset for training in Keras
 # In this case, we have a folder full of images
 # Elements of a Sequence are *batches* of images, of some size batch_size
