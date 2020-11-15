@@ -190,11 +190,12 @@ def main():
         except KeyboardInterrupt:
             print('KeyboardInterrupt caught, saving current weights as ' + args.output_model_name+'_resume.h5')
             model.save_weights(args.output_model_name+'_resume.h5')
-            
+
     with tf.device('/device:GPU:0'):
         model = tf.keras.models.load_model('test.h5.h5')
         converter = tf.lite.TFLiteConverter.from_keras_model(model)
         tflite_model = converter.convert()
+        print("Generating the "+args.output_model_name+".tflite ....................")
         open(args.output_model_name+".tflite", "wb").write(tflite_model)
 
 if __name__ == '__main__':
