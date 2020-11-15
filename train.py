@@ -192,7 +192,7 @@ def main():
             model.save_weights(args.output_model_name+'_resume.h5')
 
     with tf.device('/device:GPU:0'):
-        model = tf.keras.models.load_model('test.h5.h5')
+        model = tf.keras.models.load_model(args.output_model_name+'.h5')
         converter = tf.lite.TFLiteConverter.from_keras_model(model)
         tflite_model = converter.convert()
         print("Generating the "+args.output_model_name+".tflite ....................")
