@@ -26,7 +26,7 @@ class my_dictionary(dict):
         self[key] = value 
 
 def decode(characters, y):
-    y = numpy.argmax(numpy.array(y), axis=2)[:,0]
+    y = numpy.argmax(numpy.array(y), axis=1)
     return ''.join([characters[x] for x in y])
 
     
