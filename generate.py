@@ -51,12 +51,20 @@ def main():
     symbols_file.close()
 
     print("Generating captchas with symbol set {" + captcha_symbols + "}")
-
+    numberOfExistingFiles = 0
     if not os.path.exists(args.output_dir):
         print("Creating output directory " + args.output_dir)
         os.makedirs(args.output_dir)
+    else:
+        existingFilesList = os.listdir(args.output_dir)
+        numberOfExistingFiles = len(existingFilesList)
 
-    for i in range(args.count):
+    NoOfFilesToGen = args.count - numberOfExistingFiles
+
+    if NoOfFilesToGen <= 0 :
+        print('Files are already available in the directory')
+
+    for i in range(NoOfFilesToGen):
         random_str = ''.join([random.choice(captcha_symbols) for j in range(args.length)])
         file_name = codecs.encode(random_str.encode(), "hex")
         image_path = os.path.join(args.output_dir, file_name.decode("ASCII")  +'.png')

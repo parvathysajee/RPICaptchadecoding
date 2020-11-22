@@ -10,8 +10,10 @@ import numpy
 import string
 import random
 import argparse
+import shutil
 import tflite_runtime.interpreter as tflite
-from collections import OrderedDict 
+from collections import OrderedDict
+
 
 class my_dictionary(dict): 
   
@@ -24,8 +26,10 @@ class my_dictionary(dict):
         self[key] = value 
 
 def decode(characters, y):
-    y = numpy.argmax(numpy.array(y), axis=1)
+    y = numpy.argmax(numpy.array(y), axis=2)[:,0]
     return ''.join([characters[x] for x in y])
+
+    
 
 def main():
     parser = argparse.ArgumentParser()
@@ -58,6 +62,8 @@ def main():
     print("Classifying captchas with symbol set {" + captcha_symbols + "}")
     dict_obj = my_dictionary()
 
+    file_list = os.listdir(args.captcha_dir)
+    used_files = []
 
     with open(args.output, 'w',newline='\n') as output_file:
         json_file = open(args.model_name+'.json', 'r')
@@ -84,8 +90,14 @@ def main():
             for output_node in output_tf:
                 prediction.append(tf_interpreter.get_tensor(output_node['index']))
             prediction = numpy.reshape(prediction,(len(output_tf),-1))
-            output_file.write(x + "," + decode(captcha_symbols, prediction) + "\n")
-
+            try:
+                output_file.write(x + "," + decode(captcha_symbols, prediction) + "\n")
+                used_files.append(file_list.pop(x))
+            except:
+                print('Process interrupted')
+                os.makedirs('classified_images')
+                for classifiedImages in used_files:
+                    shutil.move(classifiedImages, 'classified_images')
             print('Classified ' + x)
 
 if __name__ == '__main__':

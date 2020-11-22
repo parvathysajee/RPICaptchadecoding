@@ -1,0 +1,23 @@
+C:
+mkdir Github
+cd Github
+echo "Cloning to GIT Repo......"
+git clone https://github.com/parvathysajee/ScProject.git
+cd ScProject
+git config credential.helper store
+call activate env1
+echo "Activated the Environment"
+python generate.py --width 128 --height 64 --length 6 --symbols symbols.txt --count 1000 --output-dir training_data
+echo "Generated the training data"
+python generate.py --width 128 --height 64 --length 6 --symbols symbols.txt --count 1000 --output-dir validation_data
+echo "Generated the validation data"
+python train.py --width 128 --height 64 --length 6 --symbols symbols.txt --batch-size 32 --epochs 5 --output-model test --train-dataset training_data --validate-dataset validation_data
+echo "Captcha Training Completed and generated the tflite model"
+git add test.tflite test.json
+git commit -m "New commit by parvathy"
+git push origin master
+echo "Git push is successful"
+echo "Starting Raspberry Pi Session"
+python automation.py
+echo "Succesfully generated the captcha details in Pi ............................."
+pause
