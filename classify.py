@@ -91,8 +91,8 @@ def main():
                 prediction.append(tf_interpreter.get_tensor(output_node['index']))
             prediction = numpy.reshape(prediction,(len(output_tf),-1))
             try:
-                output_file.write(x + "," + decode(captcha_symbols, prediction) + "\n")
-                used_files.append(file_list.pop(x))
+                output_file.write(x + "," + decode(captcha_symbols, prediction).replace(' ','') + "\n")
+                used_files.append(file_list.remove(x))
             except:
                 print('Process interrupted')
                 os.makedirs('classified_images')
