@@ -8,6 +8,7 @@ username = "sajeekup"
 password = "Friends@25"
 
 command = "sh automation.sh"
+print("Classification of images in progress....")
 
 ssh = paramiko.SSHClient()
 ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
