@@ -12,8 +12,8 @@ import codecs
 import logging
 
 def main():
-    logging.basicConfig(filename='classify.log', filemode='w', format='%(asctime)s - %(message)s', datefmt='%d-%b-%y %H:%M:%S')
-    logging.warning('This will get logged to a file')
+    logging.basicConfig(filename='generate.log', filemode='w',level=logging.INFO,format='%(asctime)s - %(message)s', datefmt='%d-%b-%y %H:%M:%S')
+    logging.info('This will get logged to a file')
     parser = argparse.ArgumentParser()
     parser.add_argument('--width', help='Width of captcha image', type=int)
     parser.add_argument('--height', help='Height of captcha image', type=int)
