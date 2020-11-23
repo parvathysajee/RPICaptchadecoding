@@ -33,7 +33,7 @@ def decode(characters, y):
     
 
 def main():
-    logging.basicConfig(filename='classify.log', filemode='w', format='%(asctime)s - %(message)s', datefmt='%d-%b-%y %H:%M:%S')
+    logging.basicConfig(filename='classify.log', filemode='w',level=logging.INFO,format='%(asctime)s - %(message)s', datefmt='%d-%b-%y %H:%M:%S')
     logging.warning('This will get logged to a file')
     parser = argparse.ArgumentParser()
     parser.add_argument('--model-name', help='Model name to use for classification', type=str)

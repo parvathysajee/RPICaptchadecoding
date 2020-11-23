@@ -11,6 +11,7 @@ import argparse
 import tensorflow as tf
 import tensorflow.keras as keras
 import codecs 
+import logging
 
 # Build a Keras model given some parameters
 def create_model(captcha_length, captcha_num_symbols, input_shape, model_depth=5, module_size=2):
@@ -95,6 +96,8 @@ class ImageSequence(keras.utils.Sequence):
         return X, y
 
 def main():
+    logging.basicConfig(filename='train.log', filemode='w',level=logging.INFO,format='%(asctime)s - %(message)s', datefmt='%d-%b-%y %H:%M:%S')
+    logging.info('training started')
     parser = argparse.ArgumentParser()
     parser.add_argument('--width', help='Width of captcha image', type=int)
     parser.add_argument('--height', help='Height of captcha image', type=int)
@@ -161,7 +164,7 @@ def main():
 
         if args.input_model is not None:
             model.load_weights(args.input_model)
-
+        logging.info('model.compile')
         model.compile(loss='categorical_crossentropy',
                       optimizer=keras.optimizers.Adam(1e-3, amsgrad=True),
                       metrics=['accuracy'])
