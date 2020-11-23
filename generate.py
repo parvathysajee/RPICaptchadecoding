@@ -9,8 +9,11 @@ import argparse
 import captcha.image
 import re
 import codecs
+import logging
 
 def main():
+    logging.basicConfig(filename='classify.log', filemode='w', format='%(asctime)s - %(message)s', datefmt='%d-%b-%y %H:%M:%S')
+    logging.warning('This will get logged to a file')
     parser = argparse.ArgumentParser()
     parser.add_argument('--width', help='Width of captcha image', type=int)
     parser.add_argument('--height', help='Height of captcha image', type=int)
@@ -75,6 +78,7 @@ def main():
             image_path = os.path.join(args.output_dir, file_name.decode("ASCII") + '_' + str(version) + '.png')
 
         image = numpy.array(captcha_generator.generate_image(random_str))
+        logging.info('Generating image '+random_str)
         cv2.imwrite(image_path, image)
 
 if __name__ == '__main__':
