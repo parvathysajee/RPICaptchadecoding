@@ -1,0 +1,2 @@
+This project trains a model to read captchas efficiently.
+The captchas are created and then trained and then transferred to a Raspberry PI to decode
